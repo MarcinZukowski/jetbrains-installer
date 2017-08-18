@@ -5,7 +5,7 @@ tools on various machines.
 
 ## Usage
 
-ee all options
+See all options
 
     ./jbi.py --help
 
@@ -15,7 +15,7 @@ Example: Download CLion
 
 Example: Download and install IntelliJ Idea Community in `$HOME/local`, creating a soft link (useful when versions change)
 
-    ./jbi.py ideac linux -i -p $HOME/local
+    ./jbi.py ideac linux -i -l -p $HOME/local
 
 Example: Update PyCharm Professional to the latest version, updating the soft link, and creating an application link
 
