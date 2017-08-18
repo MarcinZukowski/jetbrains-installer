@@ -9,6 +9,8 @@ import tarfile
 import urllib
 
 DEFAULT_PREFIX = "/opt"
+APP_PREFIX = os.path.expanduser('~/.local/share/applications')
+
 
 class Tool:
     """Defines a single IntelliJ tool"""
@@ -43,6 +45,11 @@ def error(msg):
     print "ERROR: {0}".format(msg)
     parser.print_help()
     sys.exit(1)
+
+
+def mkdirs(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 
 def platforms(data):
@@ -90,7 +97,7 @@ def do_download(download):
     return fname
 
 
-def progress(a,b,c):
+def progress(a, b, c):
     """Function that prints download progress"""
     sofar = a * b
     if a % 100 == 1:
@@ -104,7 +111,7 @@ parser.add_option("-f", "--force", help="Force download and installation, even i
 parser.add_option("-i", "--install", help="Install after downloading", action="store_true")
 parser.add_option("-l", "--link", help="Create a softlink with base product name", action="store_true")
 parser.add_option("-p", "--prefix", help="Directory to install the tool (default={0})".format(DEFAULT_PREFIX))
-parser.add_option("-a", "--app", help="Add application to /usr/share/applications", action="store_true")
+parser.add_option("-a", "--app", help="Add application to ~/.local/share/applications", action="store_true")
 
 (options, args) = parser.parse_args()
 prefix = options.prefix if options.prefix else DEFAULT_PREFIX
@@ -161,6 +168,7 @@ if options.install:
             break
         dir = os.path.dirname(dir)
 
+    mkdirs(prefix)
     fulldir = os.path.join(prefix, dir)
 
     if os.path.exists(fulldir):
@@ -186,7 +194,8 @@ if options.install:
         fulldir = linkname
 
     if options.app:
-        app_dir = os.path.expanduser('~/.local/share/applications')
+        app_dir = APP_PREFIX
+        mkdirs(app_dir)
         app_path = os.path.join(app_dir, tool.name + ".desktop")
         print "Creating {0}".format(app_path)
 
