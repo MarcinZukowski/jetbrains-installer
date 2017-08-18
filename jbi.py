@@ -176,7 +176,7 @@ if options.install:
     tar.extractall(prefix)
 
     if options.link:
-        linkname = prefix + dir.split('-')[0]
+        linkname = os.path.join(prefix, dir.split('-')[0])
         if os.path.exists(linkname):
             print "Deleting old link {0}".format(linkname)
             os.remove(linkname)
@@ -198,6 +198,7 @@ Exec={binname}
 StartupNotify=true
 Terminal=false
 Type=Application
+Categories=Development;IDE;
 Icon={icon}""".format(
                 name=tool.name,
                 binname=os.path.join(fulldir, "bin", tool.binname + ".sh"),

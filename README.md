@@ -5,18 +5,23 @@ tools on various machines.
 
 ## Usage
 
-Download an example tool
+ee all options
+
+    ./jbi.py --help
+
+Example: Download CLion
 
     ./jbi.py clion linux
 
-Download and install the tool in `$HOME/local`, creating a soft link (useful when versions change)
+Example: Download and install IntelliJ Idea Community in `$HOME/local`, creating a soft link (useful when versions change)
 
     ./jbi.py ideac linux -i -p $HOME/local
 
-See possible platforms for a tool
+Example: Update PyCharm Professional to the latest version, updating the soft link, and creating an application link
+
+    ./jbi.py pycharmp linux -i -l -a -p $HOME/local -f
+
+Example: See possible platforms for IntelliJ Idea Community
 
     ./jbi.py ideac
 
-Get help
-
-    ./jbi.py --help
