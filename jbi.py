@@ -9,6 +9,7 @@ import tarfile
 import urllib
 
 DEFAULT_PREFIX = "/opt"
+DEFAULT_TMPDIR = "/tmp"
 APP_PREFIX = os.path.expanduser('~/.local/share/applications')
 
 
@@ -65,7 +66,7 @@ class MyParser(optparse.OptionParser):
 
 
 def do_download(download):
-    global tool
+    global tool, tmpdir
 
     link = download["link"]
     fname = link.split('/')[-1]
@@ -76,6 +77,9 @@ def do_download(download):
 
     # TODO: make it work with https
     link = link.replace("https", "http")
+
+    mkdirs(tmpdir)
+    fname = os.path.join(tmpdir, fname)
 
     ready = False
     if os.path.isfile(fname):
@@ -88,7 +92,7 @@ def do_download(download):
             ready = True
 
     if not ready:
-        print "Downloading from {0}".format(link)
+        print "Downloading from {0} to {1}".format(link, fname)
         urllib.urlretrieve(link, fname, reporthook=progress)
 
         progress(1, size, size)
@@ -111,10 +115,12 @@ parser.add_option("-f", "--force", help="Force download and installation, even i
 parser.add_option("-i", "--install", help="Install after downloading", action="store_true")
 parser.add_option("-l", "--link", help="Create a softlink with base product name", action="store_true")
 parser.add_option("-p", "--prefix", help="Directory to install the tool (default={0})".format(DEFAULT_PREFIX))
+parser.add_option("-t", "--tmpdir", help="Temporary directory for downloaded files(default={0})".format(DEFAULT_TMPDIR))
 parser.add_option("-a", "--app", help="Add application to ~/.local/share/applications", action="store_true")
 
 (options, args) = parser.parse_args()
 prefix = options.prefix if options.prefix else DEFAULT_PREFIX
+tmpdir = options.tmpdir if options.tmpdir else DEFAULT_TMPDIR
 
 if len(args) > 2:
     error("Too many arguments.")
@@ -188,8 +194,8 @@ if options.install:
         if os.path.exists(linkname):
             print "Deleting old link {0}".format(linkname)
             os.remove(linkname)
-        print "Linking {0} to {1}".format(fulldir, linkname)
-        os.symlink(fulldir, linkname)
+        print "Linking {0} to {1}".format(dir, linkname)
+        os.symlink(dir, linkname)
 
         fulldir = linkname
 
