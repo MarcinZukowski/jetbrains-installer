@@ -25,3 +25,12 @@ Example: See possible platforms for IntelliJ Idea Community
 
     ./jbi.py ideac
 
+## MacOSX notes
+
+* The installation currently simply opens the downloaded `.dmg` file,
+  you need to instal the app yourself
+  
+## Windows notes
+
+* Not tested at all `:)`
+
