@@ -27,9 +27,9 @@ Example: See possible platforms for IntelliJ Idea Community
 
 ## MacOSX notes
 
-* The installation currently simply opens the downloaded `.dmg` file,
-  you need to instal the app yourself
-  
+The installation currently always installs under /Applications.
+If the application with the same name existed, it will rename it to .old.
+
 ## Windows notes
 
 * Not tested at all `:)`
