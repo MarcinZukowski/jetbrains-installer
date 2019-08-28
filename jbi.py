@@ -1,13 +1,15 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
+import glob
 import json
 import optparse
 import os.path
-import shutil
+import re
 import subprocess
 import sys
 import tarfile
 import urllib
+import urllib.request
 
 DEFAULT_PREFIX = "/opt"
 DEFAULT_TMPDIR = "/tmp"
@@ -42,8 +44,12 @@ for t in tools:
     for alias in t.aliases:
         toolMap[alias.lower()] = t
 
-
 def error(msg):
+    print("ERROR: {0}".format(msg))
+    sys.exit(1)
+
+
+def usage(msg):
     global parser
     print("ERROR: {0}".format(msg))
     parser.print_help()
@@ -53,6 +59,11 @@ def error(msg):
 def mkdirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+
+def shell(cmd, stderr=None):
+    print("Running: {0}".format(cmd))
+    return subprocess.check_output(cmd, shell=True, universal_newlines=True, stderr=stderr)
 
 
 def platforms(data):
@@ -73,7 +84,7 @@ def get_tool_data(tool):
     releases_link = "http://data.services.jetbrains.com/products/releases?code={0}&latest=true&type=release".format(
         code)
 
-    f = urllib.urlopen(releases_link)
+    f = urllib.request.urlopen(releases_link)
     resp = json.load(f)
     return resp[code][0]
 
@@ -173,9 +184,30 @@ Icon={icon}""".format(
 
 
 def do_install_macosx(fname):
-    print("Opening {}".format(fname))
-    print("Follow the instructions")
-    subprocess.call(["open", fname])
+    print("Mounting {}".format(fname))
+    out = shell("hdiutil attach -readonly '{0}'".format(fname, sys.stdout))
+    mnt = re.split(r" [ ]+", out.splitlines()[-1])[2].strip()
+    print("Mounted as {}".format(mnt))
+    fullapps = glob.glob(os.path.join(mnt, "*.app"))
+    if len(fullapps) != 1:
+        error("Expect exactly 1 .app in the mounted directory")
+    fullapp = fullapps[0]
+    app = os.path.split(fullapp)[-1]
+    app_install_path = os.path.join("/Applications", app)
+    if os.path.exists(app_install_path):
+        old_path = app_install_path + ".old"
+        if os.path.exists(old_path):
+            print("WARNING: deleting {0}".format(old_path))
+            shell("rm -rf {0}".format(old_path))
+        print("WARNING:\n  {0}\nexists, renaming to\n  {1}".format(app_install_path, old_path))
+        os.rename(app_install_path, old_path)
+    print("Copying to {0}".format(app_install_path))
+    shell("cp -R {0} {1}".format(fullapp, app_install_path))
+    if os.path.exists(app_install_path):
+        "Application installed in {0}".format(app_install_path)
+    else:
+        error("Unexpected error when installing the app")
+    shell("hdiutil detach '{0}'".format(mnt))
 
 
 def progress(a, b, c):
@@ -200,17 +232,17 @@ prefix = options.prefix if options.prefix else DEFAULT_PREFIX
 tmpdir = options.tmpdir if options.tmpdir else DEFAULT_TMPDIR
 
 if len(args) > 2:
-    error("Too many arguments.")
+    usage("Too many arguments.")
 
 if len(args) == 0:
-    error("Need to provide a product.")
+    usage("Need to provide a product.")
 
 product = args[0]
 
 tool = toolMap.get(product.lower())
 
 if not tool:
-    error("Unknown product: {0}".format(product))
+    usage("Unknown product: {0}".format(product))
 
 print("Downloading {0}".format(tool.name))
 
@@ -240,4 +272,4 @@ if options.install:
     elif sys.platform == "darwin":
         do_install_macosx(downloaded_fname)
     else:
-        error("Unsupported platform for installation: {}".format(sys.platform))
+        ("Unsupported platform for installation: {}".format(sys.platform))
