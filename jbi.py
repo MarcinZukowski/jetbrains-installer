@@ -198,11 +198,11 @@ def do_install_macosx(fname):
         old_path = app_install_path + ".old"
         if os.path.exists(old_path):
             print("WARNING: deleting {0}".format(old_path))
-            shell("rm -rf {0}".format(old_path))
+            shell("rm -rf '{0}'".format(old_path))
         print("WARNING:\n  {0}\nexists, renaming to\n  {1}".format(app_install_path, old_path))
         os.rename(app_install_path, old_path)
     print("Copying to {0}".format(app_install_path))
-    shell("cp -R {0} {1}".format(fullapp, app_install_path))
+    shell("cp -R '{0}' '{1}'".format(fullapp, app_install_path))
     if os.path.exists(app_install_path):
         "Application installed in {0}".format(app_install_path)
     else:
