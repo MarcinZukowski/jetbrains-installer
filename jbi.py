@@ -3,7 +3,9 @@
 import glob
 import json
 import optparse
+import os
 import os.path
+import stat
 import re
 import shutil
 import subprocess
@@ -14,6 +16,7 @@ import urllib.request, urllib.parse, urllib.error
 DEFAULT_PREFIX = "/opt"
 DEFAULT_TMPDIR = "/tmp"
 APP_PREFIX = os.path.expanduser('~/.local/share/applications')
+DESKTOP_PREFIX = os.path.expanduser('~/Desktop')
 
 
 class Tool:
@@ -164,14 +167,7 @@ def do_install_linux(fname):
 
         fulldir = linkname
 
-    if options.app:
-        app_dir = APP_PREFIX
-        mkdirs(app_dir)
-        app_path = os.path.join(app_dir, tool.name + ".desktop")
-        print("Creating {0}".format(app_path))
-
-        with open(app_path, "w") as f:
-            f.write("""
+    desktop_entry = """
 [Desktop Entry]
 Name={name}
 Exec={binname}
@@ -182,7 +178,27 @@ Categories=Development;IDE;
 Icon={icon}""".format(
                 name=tool.name,
                 binname=os.path.join(fulldir, "bin", tool.binname + ".sh"),
-                icon=os.path.join(fulldir, "bin", tool.binname + ".png")))
+                icon=os.path.join(fulldir, "bin", tool.binname + ".png"))
+
+    if options.app:
+        mkdirs(APP_PREFIX)
+        app_path = os.path.join(APP_PREFIX, tool.name + ".desktop")
+        print("Creating {0}".format(app_path))
+
+        with open(app_path, "w") as f:
+            f.write(desktop_entry)
+            
+    if options.desktop:
+        mkdirs(DESKTOP_PREFIX)
+        app_path = os.path.join(DESKTOP_PREFIX, tool.name + ".desktop")
+        print("Creating {0}".format(app_path))
+
+        with open(app_path, "w") as f:
+            f.write(desktop_entry)
+            
+        # Add +x
+        st = os.stat(app_path)
+        os.chmod(app_path, st.st_mode | stat.S_IEXEC)
 
 
 def do_install_macosx(fname):
@@ -228,6 +244,7 @@ parser.add_option("-l", "--link", help="Create a softlink with base product name
 parser.add_option("-p", "--prefix", help="Directory to install the tool (default={0})".format(DEFAULT_PREFIX))
 parser.add_option("-t", "--tmpdir", help="Temporary directory for downloaded files(default={0})".format(DEFAULT_TMPDIR))
 parser.add_option("-a", "--app", help="Add application to ~/.local/share/applications", action="store_true")
+parser.add_option("-d", "--desktop", help="Add application to ~/Desktop", action="store_true")
 
 (options, args) = parser.parse_args()
 prefix = options.prefix if options.prefix else DEFAULT_PREFIX
