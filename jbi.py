@@ -8,8 +8,7 @@ import re
 import subprocess
 import sys
 import tarfile
-import urllib
-import urllib.request
+import urllib.request, urllib.parse, urllib.error
 
 DEFAULT_PREFIX = "/opt"
 DEFAULT_TMPDIR = "/tmp"
@@ -117,7 +116,7 @@ def do_download(download):
 
     if not ready:
         print("Downloading from {0} to {1}".format(link, fname))
-        urllib.urlretrieve(link, fname, reporthook=progress)
+        urllib.request.urlretrieve(link, fname, reporthook=progress)
 
         progress(1, size, size)
         print("\nDone!")
