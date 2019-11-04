@@ -5,6 +5,7 @@ import json
 import optparse
 import os.path
 import re
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -139,17 +140,19 @@ def do_install_linux(fname):
     mkdirs(prefix)
     fulldir = os.path.join(prefix, dirname)
 
+    do_extract = True
     if os.path.exists(fulldir):
         print("Target directory {0} already exists".format(fulldir))
         if options.force:
             print("Deleting {0}".format(fulldir))
             shutil.rmtree(fulldir)
         else:
-            print("Stopping. Use --force to delete old installation")
-            exit(1)
-
-    print("Extracting into {0}".format(fulldir))
-    tar.extractall(prefix)
+            print("Not installing the tool. Use --force to delete old installation")
+            do_extract = False
+            
+    if do_extract:
+        print("Extracting into {0}".format(fulldir))
+        tar.extractall(prefix)
 
     if options.link:
         linkname = os.path.join(prefix, dirname.split('-')[0])
