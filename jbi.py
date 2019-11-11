@@ -178,7 +178,7 @@ Type=Application
 Categories=Development;IDE;
 Icon={icon}""".format(
                 name=tool.name,
-                binname=os.path.join(fulldir, "bin", tool.binname + ".sh"),
+                binname=os.path.join(fulldir, "bin", tool.binname + ".sh").replace(" ", "\\ "),
                 icon=os.path.join(fulldir, "bin", tool.binname + ".png"))
 
     if options.app:
