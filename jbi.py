@@ -37,7 +37,8 @@ tools = [
     Tool("PyCharm-Community", "PCC", "pycharm", ["pycharmC"]),
     Tool("WebStorm", "WS", "webstorm"),
     Tool("DataGrip", "DG", "datagrip"),
-    Tool("PhpStorm", "PH", "phpstorm")
+    Tool("PhpStorm", "PH", "phpstorm"),
+    Tool("Rider", "RD", "rider")
 ]
 
 toolMap = {}
