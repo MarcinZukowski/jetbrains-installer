@@ -11,8 +11,12 @@ import shutil
 import subprocess
 import sys
 import tarfile
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 
+DEFAULT_CHANNEL = "release"
+KNOWN_CHANNELS = ["release", "rc"]
 DEFAULT_PREFIX = "/opt"
 DEFAULT_TMPDIR = "/tmp"
 APP_PREFIX = os.path.expanduser('~/.local/share/applications')
@@ -47,6 +51,7 @@ for t in tools:
     toolMap[t.name.lower()] = t
     for alias in t.aliases:
         toolMap[alias.lower()] = t
+
 
 def error(msg):
     print("ERROR: {0}".format(msg))
@@ -83,10 +88,13 @@ class MyParser(optparse.OptionParser):
 
 
 def get_tool_data(tool):
+    global channel
     code = tool.code
 
-    releases_link = "http://data.services.jetbrains.com/products/releases?code={0}&latest=true&type=release".format(
-        code)
+    print("Determining the version for {0} from channel {1}".format(code, channel))
+
+    releases_link = "http://data.services.jetbrains.com/products/releases?code={0}&latest=true&type={1}".format(
+        code, channel)
 
     f = urllib.request.urlopen(releases_link)
     resp = json.load(f)
@@ -244,12 +252,18 @@ parser.add_option("-i", "--install", help="Install after downloading", action="s
 parser.add_option("-l", "--link", help="Create a softlink with base product name", action="store_true")
 parser.add_option("-p", "--prefix", help="Directory to install the tool (default={0})".format(DEFAULT_PREFIX))
 parser.add_option("-t", "--tmpdir", help="Temporary directory for downloaded files(default={0})".format(DEFAULT_TMPDIR))
+parser.add_option("-c", "--channel", help="Channell to use(default={0}, accepted values: {1})".format(
+    DEFAULT_CHANNEL, ", ".join(KNOWN_CHANNELS)))
 parser.add_option("-a", "--app", help="Add application to ~/.local/share/applications", action="store_true")
 parser.add_option("-d", "--desktop", help="Add application to ~/Desktop", action="store_true")
 
 (options, args) = parser.parse_args()
 prefix = options.prefix if options.prefix else DEFAULT_PREFIX
 tmpdir = options.tmpdir if options.tmpdir else DEFAULT_TMPDIR
+
+channel = options.channel if options.channel else DEFAULT_CHANNEL
+if channel not in KNOWN_CHANNELS:
+    usage("Unknown channel: {0}, accepted values: {1}".format(channel, ", ".join(KNOWN_CHANNELS)))
 
 if len(args) > 2:
     usage("Too many arguments.")
