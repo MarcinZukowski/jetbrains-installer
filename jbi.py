@@ -15,6 +15,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+DEFAULT_RELEASE = None
 DEFAULT_CHANNEL = "release"
 KNOWN_CHANNELS = ["release", "rc"]
 DEFAULT_PREFIX = "/opt"
@@ -88,17 +89,28 @@ class MyParser(optparse.OptionParser):
 
 
 def get_tool_data(tool):
-    global channel
+    global channel, release
     code = tool.code
 
     print("Determining the version for {0} from channel {1}".format(code, channel))
 
-    releases_link = "http://data.services.jetbrains.com/products/releases?code={0}&latest=true&type={1}".format(
-        code, channel)
+    releases_link = "http://data.services.jetbrains.com/products/releases?code={0}&latest={2}&type={1}".format(
+        code, channel, "true" if release is None else "false")
 
     f = urllib.request.urlopen(releases_link)
     resp = json.load(f)
-    return resp[code][0]
+    if release is None:
+        return resp[code][0]
+    else:
+        # Find the release
+        for rel in resp[code]:
+            build = rel["build"]
+            version = rel["version"]
+            majorVersion = rel["majorVersion"]
+            year = majorVersion.split(".")[0]
+            if release in (build, version, majorVersion, year):
+                return rel
+    error("Can not find release {0} for tool {1} in channel {2}".format(release, code, channel))
 
 
 def do_download(download):
@@ -256,6 +268,9 @@ parser.add_option("-c", "--channel", help="Channell to use(default={0}, accepted
     DEFAULT_CHANNEL, ", ".join(KNOWN_CHANNELS)))
 parser.add_option("-a", "--app", help="Add application to ~/.local/share/applications", action="store_true")
 parser.add_option("-d", "--desktop", help="Add application to ~/Desktop", action="store_true")
+parser.add_option("-r", "--release", help="""Determine the exact tool release. Can be one of:
+year (e.g. "2019"), major version (e.g. "2019.3"), minor version ("2019.3.4"), or build number (e.g. "193.6911.18").
+(default,empty=latest)""")
 
 (options, args) = parser.parse_args()
 prefix = options.prefix if options.prefix else DEFAULT_PREFIX
@@ -264,6 +279,10 @@ tmpdir = options.tmpdir if options.tmpdir else DEFAULT_TMPDIR
 channel = options.channel if options.channel else DEFAULT_CHANNEL
 if channel not in KNOWN_CHANNELS:
     usage("Unknown channel: {0}, accepted values: {1}".format(channel, ", ".join(KNOWN_CHANNELS)))
+
+release = options.release or DEFAULT_RELEASE
+if release == "latest" or release == "":
+  release = None
 
 if len(args) > 2:
     usage("Too many arguments.")
