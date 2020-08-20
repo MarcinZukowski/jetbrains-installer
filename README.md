@@ -21,6 +21,10 @@ Example: Update PyCharm Professional to the latest version, updating the soft li
 
     ./jbi.py pycharmp linux -i -l -a -p $HOME/local -f
 
+Example: Install Intellij-Ultimate EAP to `/opt`, creating an application link
+
+    ./jbi.py ideaU linux --install --link --app --prefix=/opt --channel=eap
+
 Example: See possible platforms for IntelliJ Idea Community
 
     ./jbi.py ideac
