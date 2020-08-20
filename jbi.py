@@ -17,7 +17,7 @@ import urllib.request
 
 DEFAULT_RELEASE = None
 DEFAULT_CHANNEL = "release"
-KNOWN_CHANNELS = ["release", "rc"]
+KNOWN_CHANNELS = ["release", "rc", "eap"]
 DEFAULT_PREFIX = "/opt"
 DEFAULT_TMPDIR = "/tmp"
 APP_PREFIX = os.path.expanduser('~/.local/share/applications')
