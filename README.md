@@ -21,13 +21,35 @@ Example: Update PyCharm Professional to the latest version, updating the soft li
 
     ./jbi.py pycharmp linux -i -l -a -p $HOME/local -f
 
-Example: Install Intellij-Ultimate EAP to `/opt`, creating an application link
+Example: Install latest Intellij-Ultimate EAP to `/opt` (default - requires write permission for current user), creating an application link
 
     ./jbi.py ideaU linux --install --link --app --prefix=/opt --channel=eap
 
 Example: See possible platforms for IntelliJ Idea Community
 
     ./jbi.py ideac
+
+
+## CLI shortcut shim
+
+To add a CLI shim (e.g. `idea`) that doesn't hang around in terminal, run the following, adjusting paths as needed:
+
+```bash
+echo '/opt/idea/bin/idea.sh "$@" </dev/null &>/dev/null & disown $!' | sudo tee /usr/local/bin/idea
+sudo chmod +x /usr/local/bin/idea
+```
+
+Now try open a directory as a project:
+
+    cd ~/workspace/
+    idea .
+
+
+> FYI `$!` is a shortcut to the PID of the last background job
+>
+> Stdout & stderr are piped to `/dev/null`, so something like `idea --help` won't return anything, use `idea.sh` directly
+  for that use case.
+
 
 ## MacOSX notes
 
