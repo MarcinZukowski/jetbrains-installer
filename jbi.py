@@ -85,6 +85,8 @@ class MyParser(optparse.OptionParser):
         res = "Available products: "
         for t in tools:
             res += "\n  {0:25s} aliases: {1}".format(t.name, " ".join(t.aliases))
+        res += "\n"
+
         return res
 
 
