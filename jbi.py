@@ -17,7 +17,7 @@ import urllib.request
 
 DEFAULT_RELEASE = None
 DEFAULT_CHANNEL = "release"
-KNOWN_CHANNELS = ["release", "rc"]
+KNOWN_CHANNELS = ["release", "rc", "eap"]
 DEFAULT_PREFIX = "/opt"
 DEFAULT_TMPDIR = "/tmp"
 APP_PREFIX = os.path.expanduser('~/.local/share/applications')
@@ -85,6 +85,8 @@ class MyParser(optparse.OptionParser):
         res = "Available products: "
         for t in tools:
             res += "\n  {0:25s} aliases: {1}".format(t.name, " ".join(t.aliases))
+        res += "\n"
+
         return res
 
 
