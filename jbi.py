@@ -42,7 +42,7 @@ tools = [
     Tool("PyCharm-Community", "PCC", "pycharm", ["pycharmC"]),
     Tool("WebStorm", "WS", "webstorm"),
     Tool("DataGrip", "DG", "datagrip"),
-    Tool("PhpStorm", "PH", "phpstorm"),
+    Tool("PhpStorm", "PS", "PhpStorm", ["php", "phps"]),
     Tool("Rider", "RD", "rider")
 ]
 
