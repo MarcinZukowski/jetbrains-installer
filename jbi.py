@@ -43,7 +43,8 @@ tools = [
     Tool("WebStorm", "WS", "webstorm"),
     Tool("DataGrip", "DG", "datagrip"),
     Tool("PhpStorm", "PS", "PhpStorm", ["php", "phps"]),
-    Tool("Rider", "RD", "rider")
+    Tool("Rider", "RD", "rider"),
+    Tool("GoLand", "GO", "goland")
 ]
 
 toolMap = {}
